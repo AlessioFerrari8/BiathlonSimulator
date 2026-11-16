@@ -1,13 +1,35 @@
 import { HR_RECOVERY_S, Position, RESTING_HR } from "./config";
 
+export interface Vec {
+  x: number;
+  y: number;
+}
+
+interface Amplitude {
+  breath: number;
+  heart: number;
+  tremor: number;
+}
+
+// Standing, the body has no support: everything says more, the tremor most of all
+const AMPLITUDE: Record<Position, Amplitude> = {
+  prone: { breath: 20, heart: 9, tremor: 5 },
+  standing: { breath: 30, heart: 14, tremor: 12 },
+}
+
 export class Shooter {
   hr: number;
+  private clock = 0;
+  private breathPhase: number;
+  private heartPhase = 0;
 
   constructor(
     readonly position: Position,
     arrivalHr: number,
+    private readonly phase = 0,
   ) {
     this.hr = arrivalHr;
+    this.breathPhase = phase;
   }
 
   /**
@@ -19,7 +41,35 @@ export class Shooter {
   }
 
   update(dt: number): void {
+    this.clock += dt;
     // Waiting calms the heart rate: it is the time traded for accuracy
     this.hr += (RESTING_HR - this.hr) * (1 - Math.exp(-dt / HR_RECOVERY_S));
+    this.breathPhase += 2 * Math.PI * (0.3 + 0.5 * this.effort) * dt;
+    this.heartPhase += (this.hr / 60) * dt;
+  }
+
+  /**
+   * How far the sight is displaced from where the player is aiming
+   */
+  get offset(): Vec {
+    const amp = AMPLITUDE[this.position];
+    const scale = 0.35 + 0.65 * this.effort;
+
+    // Each beat gives a small kick that fades before the next one
+    const pulse = Math.exp(-5 * (this.heartPhase % 1));
+    const side = Math.floor(this.heartPhase) % 2 === 0 ? 1 : -1;
+
+    const tremor = amp.tremor * scale;
+    const t = this.clock + this.phase;
+    const tremorX = (Math.sin(t * 5.3) + 0.6 * Math.sin(t * 8.7 + 2)) / 1.6;
+    const tremorY = (Math.sin(t * 4.1 + 1) + 0.6 * Math.sin(t * 9.9 + 4)) / 1.6;
+
+    return {
+      x:
+        amp.breath * scale * 0.25 * Math.sin(this.breathPhase * 0.5 + this.phase) + amp.heart * scale * 0.5 * pulse *
+        side + tremorX * tremor,
+      y:
+        amp.breath * scale * Math.sin(this.breathPhase) - amp.heart * scale * pulse + tremor * tremorY,
+    };
   }
 }
