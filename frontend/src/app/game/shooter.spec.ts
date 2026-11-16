@@ -3,19 +3,19 @@ import { Shooter } from './shooter';
 
 const DT = 1 / 60;
 
-function run(shooter: Shooter, seconds: number): void {
-  for (let t = 0; t < seconds; t += DT) shooter.update(DT);
+function run(shooter: Shooter, seconds: number, holding = false): void {
+  for (let t = 0; t < seconds; t += DT) shooter.update(DT, holding);
 }
 
 /**
  * Vertical travel of the sight over a time window
  */
-function verticalSwing(shooter: Shooter, seconds: number): number {
+function verticalSwing(shooter: Shooter, seconds: number, holding = false): number {
   let min = Infinity;
   let max = -Infinity;
 
   for (let t = 0; t < seconds; t += DT) {
-    shooter.update(DT);
+    shooter.update(DT, holding);
     min = Math.min(min, shooter.offset.y);
     max = Math.max(max, shooter.offset.y);
   }
@@ -41,4 +41,20 @@ describe('Shooter', () => {
     const standing = verticalSwing(new Shooter('standing', 160), 3);
     expect(standing).toBeGreaterThan(prone);
   });
+
+  it('steadies the sights while holding breath', () => {
+    const free = verticalSwing(new Shooter('prone', 160), 2);
+    const held = verticalSwing(new Shooter('prone', 160), 2, true);
+    expect(held).toBeLessThan(free * 0.6);
+  });
+
+  it('builds strain after a long hold and recovers when breathing', () => {
+    const shooter = new Shooter('standing', 160);
+    run(shooter, 2, true);
+    expect(shooter.strain).toBe(0);
+    run(shooter, 2, true);
+    expect(shooter.strain).toBeGreaterThan(1);
+    run(shooter, 4);
+    expect(shooter.strain).toBe(0);
+  })
 });
