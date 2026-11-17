@@ -18,6 +18,8 @@ const AMPLITUDE: Record<Position, Amplitude> = {
 };
 
 const HOLD_LIMIT_S = 2.5;
+const RECOIL_KICK = 40;
+const MAX_HR = 195;
 
 export class Shooter {
   hr: number;
@@ -25,6 +27,7 @@ export class Shooter {
   private breathPhase: number;
   private heartPhase = 0;
   private holdS = 0;
+  private recoil = 0;
 
   // `phase` offsets breath and tremor from one stage to the next: without it, holding your breath right on arrival would leave
   // the sight still in the centre
