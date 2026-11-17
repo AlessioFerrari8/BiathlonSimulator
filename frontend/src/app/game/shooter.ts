@@ -63,6 +63,12 @@ export class Shooter {
     }
     this.holdS = holding ? this.holdS + dt: Math.max(0, this.holdS - 1.5 * dt);
     this.heartPhase += (this.hr / 60) * dt;
+    this.recoil *= Math.exp(-4 * dt);
+  }
+
+  fine(): void {
+    this.recoil = 1;
+    this.hr = Math.min(MAX_HR, this.hr + 2);
   }
 
   /**
@@ -86,7 +92,7 @@ export class Shooter {
         amp.breath * scale * 0.25 * Math.sin(this.breathPhase * 0.5 + this.phase) + amp.heart * scale * 0.5 * pulse *
         side + tremorX * tremor,
       y:
-        amp.breath * scale * Math.sin(this.breathPhase) - amp.heart * scale * pulse + tremor * tremorY,
+        amp.breath * scale * Math.sin(this.breathPhase) - amp.heart * scale * pulse + tremor * tremorY - RECOIL_KICK * this.recoil,
     };
   }
 }

@@ -21,7 +21,7 @@ export const PENALTY_MS = 25_000;
 export const RELOAD_MS = 900;
 export const STAGE_END_PAUSE_MS = 700;
 
-export const LEG_MS: Record<Pace, number> = { easy: 100_00, steady: 92_000, allOut: 85_000 };
+export const LEG_MS: Record<Pace, number> = { easy: 100_000, steady: 92_000, allOut: 85_000 };
 export const ARRIVAL_HR: Record<Pace, number> = { easy: 138, steady: 160, allOut: 184 };
 export const FINAL_LEG_MS = 85_000;
 
