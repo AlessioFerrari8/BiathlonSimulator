@@ -1,4 +1,4 @@
-import { ARRIVAL_HR, Pace, Position, RELOAD_MS, SHOTS_PER_STAGE, STAGES, TARGET_RADIUS, TARGET_XS, TARGET_Y, WIND_DRIFT } from "./config";
+import { ARRIVAL_HR, FINAL_LEG_MS, LEG_MS, Pace, PENALTY_MS, Position, RELOAD_MS, SHOTS_PER_STAGE, STAGE_END_PAUSE_MS, STAGES, TARGET_RADIUS, TARGET_XS, TARGET_Y, WIND_DRIFT } from "./config";
 import { createRng } from "./rng";
 import { Shooter, Vec } from "./shooter";
 
@@ -10,6 +10,22 @@ export interface Shot {
   target: number;
 }
 
+export interface StageResult {
+  position: Position;
+  pace: Pace;
+  legMs: number;
+  rangeMs: number;
+  hits: boolean[];
+  misses: number;
+  penaltyMs: number;
+}
+
+export interface RaceResult {
+  totalMs: number;
+  misses: number;
+  stages: StageResult[];
+}
+
 export class Race {
   phase: Phase = 'pace';
   stageIndex = 0;
@@ -19,10 +35,13 @@ export class Race {
   shotsLeft = 0;
   reloadMs = 0;
   rangeMs = 0;
+  readonly results: StageResult[] = [];
 
   private readonly rng: () => number;
+  private pace: Pace = 'steady';
   private windBase = 0;
   private gustPhase = 0;
+  private endPauseMs = 0;
 
   constructor(seed: number) {
     this.rng = createRng(seed);
@@ -32,6 +51,10 @@ export class Race {
     return STAGES[this.stageIndex];
   }
 
+  get isLastStage(): boolean {
+    return this.stageIndex === STAGES.length - 1;
+  }
+
   // wind, from -1 (blowing from the left) to 1, blowing right
   get wind(): number {
     // Gusts start at the third stage: the wind read on arribal is no longer enough
@@ -39,15 +62,33 @@ export class Race {
     return Math.min(1, Math.max(-1, this.windBase + gust));
   }
 
+  // Race time so far
+  get elapsedMs(): number {
+    const done = this.results.reduce((sum, s) => sum + s.legMs + s.rangeMs + s.penaltyMs, 0);
+    if (this.phase === 'shooting') return done + LEG_MS[this.pace] + this.rangeMs;
+    if (this.phase === 'finished') return done + FINAL_LEG_MS;
+    return done;
+  }
+
+  get result(): RaceResult {
+    return {
+      totalMs: this.elapsedMs,
+      misses: this.results.reduce((sum, s) => sum + s.misses, 0),
+      stages: this.results,
+    };
+  }
+
   /** The player picks how hard to ski before the range */
   choosePace(pace: Pace): void {
     if (this.phase !== 'pace') return;
+    this.pace = pace;
     this.shooter = new Shooter(this.position, ARRIVAL_HR[pace], this.rng() * 100);
     this.hits = TARGET_XS.map(() => false);
     this.shots = [];
     this.shotsLeft = SHOTS_PER_STAGE;
     this.reloadMs = 0;
     this.rangeMs = 0;
+    this.endPauseMs = 0;
     // Almost no wind on the first stage, to teach the game before makint it hader
     const strength = this.stageIndex === 0 ? 0.2 * this.rng() : 0.4 + 0.6 * this.rng();
     this.windBase = (this.rng() < 0.5 ? -1 : 1) * strength;
@@ -59,7 +100,14 @@ export class Race {
     if (this.phase !== 'shooting' || !this.shooter) return;
     this.shooter.update(dt, holding);
     this.reloadMs = Math.max(0, this.reloadMs - dt * 1000);
+
+    if (this.shotsLeft > 0) {
+      this.rangeMs += dt * 1000;
+      return;
+    }
+    // Out of shots, the clock is stopped: a short wait to see the last target
     this.rangeMs += dt * 1000;
+    if (this.endPauseMs >= STAGE_END_PAUSE_MS) this.closeStage();
   }
 
   fire(aim: Vec): Shot | null {
@@ -83,6 +131,31 @@ export class Race {
     this.reloadMs = RELOAD_MS;
     this.shooter.fire();
     return shot;
+  }
+
+  // From the summary. next stage, or the finish line
+  next(): void {
+    if (this.phase !== 'summary') return;
+    if (this.isLastStage) {
+      this.phase = 'finished';
+      return;
+    }
+    this.stageIndex++;
+    this.phase = 'pace';
+  }
+
+  private closeStage(): void {
+    const misses = this.hits.filter((hit) => !hit).length;
+    this.results.push({
+      position: this.position,
+      pace: this.pace,
+      legMs: LEG_MS[this.pace],
+      rangeMs: Math.round(this.rangeMs),
+      hits: [...this.hits],
+      misses,
+      penaltyMs: misses * PENALTY_MS,
+    });
+    this.phase = 'summary';
   }
 
   /** Where the sight really points: the player's aim plus the sway */
