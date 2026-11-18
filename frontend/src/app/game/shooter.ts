@@ -66,7 +66,7 @@ export class Shooter {
     this.recoil *= Math.exp(-4 * dt);
   }
 
-  fine(): void {
+  fire(): void {
     this.recoil = 1;
     this.hr = Math.min(MAX_HR, this.hr + 2);
   }
