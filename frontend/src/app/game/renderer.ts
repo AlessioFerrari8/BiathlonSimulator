@@ -13,7 +13,12 @@ const COLORS = {
   hit: '#ffffff',
   miss: '#e5484d',
   flag: '#f5a524',
+  mask: '#rgba(6, 9, 14, 0.74)',
+  sight: '#05070a',
+  sightBusy: '#8a94a3',
 };
+
+const SCOPE_RADIUS = 170;
 
 // Draws one frame. The context is already scaled to the FIELD size
 export function drawScene(ctx: CanvasRenderingContext2D, race: Race, aim: Vec): void {
@@ -21,6 +26,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, race: Race, aim: Vec): 
   drawFlag(ctx, 190, race.wind);
   drawFlag(ctx, 810, race.wind);
   drawTargets(ctx, race);
+  drawScope(ctx, race.sight(aim), TARGET_RADIUS[race.position] * 1.6, race.reloadMs > 0);
 }
 
 function drawBackground(ctx: CanvasRenderingContext2D): void {
@@ -105,4 +111,24 @@ function drawTargets(ctx: CanvasRenderingContext2D, race: Race): void {
 }
 
 
+function drawScope(ctx: CanvasRenderingContext2D, sight: Vec, ring: number, busy: boolean): void {
+  // Everything dark expect one hole: it is the rear sight, you only see where you aim
+  ctx.fillStyle = COLORS.mask;
+  ctx.beginPath();
+  ctx.rect(0, 0, FIELD.width, FIELD.height);
+  ctx.arc(sight.x, sight.y, SCOPE_RADIUS, 0, Math.PI * 2);
+  ctx.fill('evenodd');
 
+  ctx.strokeStyle = COLORS.sight;
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.arc(sight.x, sight.y, SCOPE_RADIUS, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Aiming ring: grey while reloading, so it is clear the rifle will not fire
+  ctx.strokeStyle = busy ? COLORS.sightBusy : COLORS.sight;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(sight.x, sight.y, ring, 0, Math.PI * 2);
+  ctx.stroke();
+}
