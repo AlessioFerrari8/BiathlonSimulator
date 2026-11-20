@@ -1,0 +1,59 @@
+<header class="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+  <div>
+    <p class="label">Stage {{ hud().stage }} / {{ stageCount }}</p>
+    <p class="stat">{{ hud().position }}</p>
+  </div>
+  <div>
+    <p class="label">Time</p>
+    <p class="stat">{{ hud().time }}</p>
+  </div>
+  <div>
+    <p class="label">Heart</p>
+    <p class="stat" [class.text-miss]="hud().hr >= 165">{{ hud().hr || '-' }} <span class="text-sm text-mist">bpm</span></p>
+  </div>
+  <div>
+    <p class="label">Wind</p>
+    <!-- The bar starts at the centre and grows towards the side the wind pushes the shot -->
+     <div class="relative mt-2 h-3 w-28 rounded-full bg-night-soft" role="img"
+      [attr.aria-label]="'Wind ' + (hud().wind < 0 ? 'left' : 'right')">
+      <div class="absolute top-0 h-3 rounded-full bg-amber"
+        [style.width.%]="(hud().wind < 0 ? -hud().wind : hud().wind) * 50"
+        [style.left.%]="hud().wind < 0 ? 50 + hud().wind * 50 : 50"></div>
+      <div class="absolute top-0 left-1/2 h-3 w-px bg-snow"></div>
+    </div>
+  </div>
+  <div>
+    <p class="label">Targets</p>
+    <div class="mt-1 flex gap-1.5">
+      @for (hit of hud().hits; track $index) {
+        <span class="size-5 rounded-full border border-snow" [class.bg-snow]="hit"></span>
+      } @empty {
+        <span class="text-mist">-</span>
+      }
+    </div>
+  </div>
+  <div>
+    <p class="label">Rounds</p>
+    <p class="stat">{{ hud().shotsLeft }}</p>
+  </div>
+</header>
+
+<div class="relative overflow-hidden rounded-xl border border-line">
+  <canvas #canvas class="block aspect-[5/3] w-full cursor-none touch-none bg-night-soft" aria-label="Shooting range"></canvas>
+
+  @if(hud().phase === 'pace') {
+    <section class="absolute inset-0 flex flex-col items-end justify-center gap-4 bg-night/90 p-4 text-center">
+      <h2 class="text-2xl font-bold">How hard do you ski to stage {{ hud().stage }}?</h2>
+      <p class="max-w-md text-mist">A faster lap saves seconds but your heart is still racing at the range. Each miss costs {{ penaltySeconds }} s.</p>
+      <div class="grid w-full max-w-2xl gap-3 sm:grid-cols-3">
+        @for (option of paces; track option.pace) {
+          <button type="button" class="btn flex-col gap-1 py-4" (click)="choosePace(option.pace)">
+            <span class="text-lg">{{ option.name }}</span>
+            <span class="tabular-nums text-amber">{{ option.seconds }} s · {{ option.hr }} bpm</span>
+            <span class="text-sm font-normal text-mist">{{ option.hint }}</span>
+          </button>
+        }
+      </div>
+    </section>
+  }
+</div>
