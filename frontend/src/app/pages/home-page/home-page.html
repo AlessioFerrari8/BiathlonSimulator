@@ -8,4 +8,30 @@
     </p>
     <a routerLink="/race" class="btn btn-primary mt-6 px-8 py-3 text-lg">Start race</a>
   </div>
+
+  <div class="grid gap-4 md:grid-cols-2">
+    <div class="panel">
+      <h2 class="label">How it works</h2>
+      <ul class="mt-3 space-y-2">
+        <li><strong>Pick your pace</strong> before each stage: faster skiing, higher heart rate.</li>
+        <li><strong>Hold your breath</strong> to freeze the sights, but not for long.</li>
+        <li><strong>Read the wind</strong>: the flags show where the shot will drift.</li>
+        <li><strong>Every miss</strong> adds {{ penaltySeconds }} s. Gold is under {{ goldTime }}.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2 class="label">Your best times</h2>
+      <ol class="mt-3 space-y-2">
+        @for (entry of bestTimes(); track entry.date) {
+          <li class="flex items-baseline justify-between gap-3">
+            <span class="stat">{{ formatTime(entry.totalMs) }}</span>
+            <span class="text-sm text-mist">{{ entry.misses }} missed · {{ entry.date | date: 'd MMM' }}</span>
+          </li>
+        } @empty {
+          <li class="text-mist">No race finished yet.</li>
+        }
+      </ol>
+    </div>
+  </div>
 </section>
