@@ -13,12 +13,22 @@
   --color-amber: #f5a524;
   --color-ice: #7cc4e8;
   --color-miss: #e5484d;
-  --font-display: ui-rounded, "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  /* Condensed for numbers and titles, like the TV graphics of a race; plain Barlow for text */
+  --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Arial Narrow", ui-sans-serif, sans-serif;
+  --animate-beat: beat 1s ease-out infinite;
+
+  @keyframes beat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.25); }
+    30% { transform: scale(1); }
+
+  }
 }
 
 @layer base {
   body {
-    @apply bg-night font-display text-snow antialiased;
+    @apply bg-night font-sans text-snow antialiased;
   }
 
   :focus-visible {
@@ -28,11 +38,16 @@
 
 @layer components {
   .btn {
-    @apply inline-flex cursor-pointer items-center justify-center rounded-lg border border-line bg-night-soft px-4 py-2 font-semibold transition-colors select-none hover:border-ice;
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border border-line bg-night-soft px-5 py-2.5 font-display text-lg font-semibold tracking-wide uppercase transition-colors select-none hover:border-ice;
   }
 
   .btn-primary {
-    @apply border-amber bg-amber text-night hover:border-snow;
+    @apply border-amber bg-amber text-night hover:border-snow hover:bg-snow;
+  }
+
+
+  .btn-ghost {
+    @apply border-transparent bg-transparent text-mist hover:border-transparent hover:text-snow;
   }
 
   .panel {
@@ -44,6 +59,20 @@
   }
 
   .stat {
-    @apply text-xl font-bold tabular-nums;
+    @apply font-display text-2xl leading-none font-bold tabular-nums;
+  }
+
+  .kbd {
+    @apply rounded border border-line border-b-2 bg-night-soft px-1.5 py-0.5 font-display text-xs font-semibold text-snow uppercase;
+  }
+
+  /* One cell of the scoreboard above the range */
+  .hud-cell {
+    @apply flex flex-col justify-center gap-1.5 border-line px-4 py-2.5 sm:border-l;
+  }
+
+  /* the range keeps 5:3 and fills the window: as wide as the height allows, minus scoreboard and footer */
+  .range-frame {
+    width: min(100%, calc((100dvh - 9rem) * 5 / 3));
   }
 }
