@@ -1,6 +1,6 @@
 import { afterNextRender, Component, DestroyRef, ElementRef, inject, signal, viewChild, WritableSignal } from '@angular/core';
 import { Phase, Race, StageResult } from '../../game/race';
-import { ARRIVAL_HR, FIELD, LEG_MS, Pace, PENALTY_MS, STAGES, TARGET_Y } from '../../game/config';
+import { ARRIVAL_HR, FIELD, LEG_MS, Pace, PENALTY_MS, STAGES, TARGET_XS, TARGET_Y } from '../../game/config';
 import { Vec } from '../../game/shooter';
 import { drawScene } from '../../game/renderer';
 import { formatTime } from '../../game/format';
@@ -39,6 +39,7 @@ const TOUCH_AIM_GAIN = 1.3;
   selector: 'app-race-page',
   templateUrl: './race-page.html',
   host: {
+    class: 'flex flex-1 flex-col px-3 sm:px-6',
     '(window:keydown)': 'onKey($event, true)',
     '(window:keyup)': 'onKey($event, false)',
     '(window:blur)': 'releaseAll()',
@@ -63,6 +64,8 @@ export class RacePage {
 
   protected readonly stageCount = STAGES.length;
   protected readonly penaltySeconds = PENALTY_MS / 1000;
+  // One notch per round on the scoreboard
+  protected readonly rounds = TARGET_XS.map((_, i) => i);
   protected readonly paces: PaceOption[] = [
     paceOption('easy', 'Easy', 'Arrive calm, lose time on the track.'),
     paceOption('steady', 'Steady', 'The balanced choice.'),
