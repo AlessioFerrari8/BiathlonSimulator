@@ -39,7 +39,13 @@
 </header>
 
 <div class="relative overflow-hidden rounded-xl border border-line">
-  <canvas #canvas class="block aspect-[5/3] w-full cursor-none touch-none bg-night-soft" aria-label="Shooting range"></canvas>
+  <canvas #canvas class="block aspect-[5/3] w-full cursor-none touch-none bg-night-soft" aria-label="Shooting range"
+    aria-label="Shooting range" (pointermove)="onPointerMove($event)" (pointerdown)="onPointerDown($event)"
+    (pointerup)="onPointerUp($event)" (pointercancel)="releaseAll()" (contextmenu)="$event.preventDefault()"></canvas>
+
+  @if(hud().strained) {
+    <p class="absolute top-3 left-1/2 -translate-x-1/2 rounded-full bg-miss px-3 py-1 text-sm font-bold">Breathe!</p>
+  }
 
   @if(hud().phase === 'pace') {
     <section class="absolute inset-0 flex flex-col items-end justify-center gap-4 bg-night/90 p-4 text-center">
