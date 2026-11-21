@@ -31,11 +31,17 @@ interface PaceOption {
 
 const HUD_INTERVAL_MS = 100;
 const MAX_FRAME_S = 0.05;
+const KEY_AIM_SPEED = 260;
 
 @Component({
   imports: [],
   selector: 'app-race-page',
   templateUrl: './race-page.html',
+  host: {
+    '(window:keydown)': 'onKey($event, true)',
+    '(window:keyup)': 'onKey($event, false)',
+    '(window:blur)': 'releaseAll()',
+  },
 })
 export class RacePage {
   private readonly router = inject(Router);
@@ -47,6 +53,7 @@ export class RacePage {
   // The seed changes every race: wind and tremor cannot be learned by heart
   private readonly race = new Race(Date.now());
   private readonly aim: Vec = { x: FIELD.width / 2, y: TARGET_Y + 120 };
+  private readonly keys = new Set<string>();
   private holdingButton = false;
   private frameId = 0;
   private lastFrame = 0;
@@ -122,18 +129,34 @@ export class RacePage {
     if (event.button === 2) this.holdingButton = false;
   }
 
+  protected onKey(event: KeyboardEvent, down: boolean): void {
+    if (this.race.phase !== 'shooting') return;
+    const handled = ['Space', 'ShiftLeft', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'KeyF'];
+    if (!handled.includes(event.code)) return;
+    event.preventDefault();
+    if (down && !event.repeat && (event.code === 'Enter' || event.code === 'KeyF')) this.fire();
+    if (down) this.keys.add(event.code);
+    else this.keys.delete(event.code);
+  }
+
   protected releaseAll(): void {
+    this.keys.clear();
     this.holdingButton = false;
   }
 
   private get holding(): boolean {
-    return this.holdingButton;
+    return this.holdingButton || this.keys.has('Space') || this.keys.has('ShiftLeft');
   }
 
   private frame(now: number): void {
     // After a tab switch the time jump would be huge: clamp it
     const dt = Math.min(MAX_FRAME_S, (now - this.lastFrame) / 1000);
     this.lastFrame = now;
+
+    this.moveAim(
+      this.aim.x + (Number(this.keys.has('ArrowRight')) - Number(this.keys.has('ArrowLeft'))) * KEY_AIM_SPEED * dt,
+      this.aim.y + (Number(this.keys.has('ArrowDown')) - Number(this.keys.has('ArrowUp'))) * KEY_AIM_SPEED * dt,
+    );
 
     const before = this.race.phase;
     this.race.update(dt, this.holding);
