@@ -1,3 +1,48 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+
+/* Design system: a shooting range at dusk. Night for the background, snow for text, amber for actions */
+@theme {
+  --color-night: #0b111b;
+  --color-night-soft: #141d2b;
+  --color-line: #263348;
+  --color-snow: #eef3f8;
+  --color-mist: #8fa1b8;
+  --color-amber: #f5a524;
+  --color-ice: #7cc4e8;
+  --font-display: ui-rounded, "Avenir Next", "Segoe UI", system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-night font-display text-snow antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-amber;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center rounded-lg border border-line bg-night-soft px-4 py-2 font-semibold transition-colors select-none hover:border-ice;
+  }
+
+  .btn-primary {
+    @apply border-amber bg-amber text-night hover:border-snow;
+  }
+
+  .panel {
+    @apply rounded-xl border border-line bg-night-soft p-5;
+  }
+
+  .label {
+    @apply text-xs font-semibold tracking-widest text-mist uppercase;
+  }
+
+  .stat {
+    @apply text-xl font-bold tabular-nums;
+  }
+}
