@@ -106,7 +106,7 @@ export class Race {
       return;
     }
     // Out of shots, the clock is stopped: a short wait to see the last target
-    this.rangeMs += dt * 1000;
+    this.endPauseMs += dt * 1000;
     if (this.endPauseMs >= STAGE_END_PAUSE_MS) this.closeStage();
   }
 
