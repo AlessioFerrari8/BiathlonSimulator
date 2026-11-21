@@ -44,6 +44,7 @@
 
     <div class="flex flex-wrap gap-3">
       <a routerLink="/race" class="btn btn-primary">Race again</a>
+      <button type="button" class="btn" (click)="copy()">{{ copied() ? 'Copied' : 'Copy result' }}</button>
       <a routerLink="/" class="btn">Home</a>
     </div>
   </section>
