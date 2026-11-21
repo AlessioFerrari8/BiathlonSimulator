@@ -84,3 +84,19 @@
     </section>
   }
 </div>
+
+<!-- On-screen controls only where there is no mouse -->
+<div class="mt-4 hidden gap-3 pointer-coarse:flex">
+  <button type="button" class="btn flex-1 touch-none py-5" (pointerdown)="setHold(true)" (pointerup)="setHold(false)"
+    (pointercancel)="setHold(false)" (pointerleave)="setHold(false)" (contextmenu)="$event.preventDefault()">Hold breath</button>
+  <button type="button" class="btn btn-primary flex-1 touch-none py-5" (pointerdown)="fire()">Fire</button>
+</div>
+
+<footer class="mt-4 flex items-center justify-between text-sm text-mist">
+  <p class="pointer-coarse:hidden">Mouse to aim · click to fire · hold <kbd>Space</kbd> or right button to hold your breath</p>
+  <p class="hidden pointer-coarse:block">Drag on the range to aim</p>
+  <div class="flex gap-4">
+    <button type="button" class="cursor-pointer underline" (click)="sound.toggle()">{{ sound.muted() ? 'Sound off' : 'Sound on' }}</button>
+    <a routerLink="/" class="underline">Quit</a>
+  </div>
+</footer>

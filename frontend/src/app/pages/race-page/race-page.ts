@@ -7,7 +7,7 @@ import { formatTime } from '../../game/format';
 import { Sound } from '../../core/sound';
 import { BestTimes } from '../../core/best-times';
 import { RaceStore } from '../../core/race-store';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 interface Hud {
   phase: Phase;
@@ -32,9 +32,10 @@ interface PaceOption {
 const HUD_INTERVAL_MS = 100;
 const MAX_FRAME_S = 0.05;
 const KEY_AIM_SPEED = 260;
+const TOUCH_AIM_GAIN = 1.3;
 
 @Component({
-  imports: [],
+  imports: [RouterLink],
   selector: 'app-race-page',
   templateUrl: './race-page.html',
   host: {
@@ -55,6 +56,7 @@ export class RacePage {
   private readonly aim: Vec = { x: FIELD.width / 2, y: TARGET_Y + 120 };
   private readonly keys = new Set<string>();
   private holdingButton = false;
+  private lastTouch: Vec | null = null;
   private frameId = 0;
   private lastFrame = 0;
   private lastHud = 0;
@@ -115,18 +117,40 @@ export class RacePage {
     this.hud.set(this.readHud());
   }
 
+  protected setHold(holding: boolean): void {
+    this.holdingButton = holding;
+  }
+
   protected onPointerMove(event: PointerEvent): void {
-    const point = this.toField(event);
-    this.moveAim(point.x, point.y);
+    if (event.pointerType !== 'touch') {
+      // Mouse: the sight follows the pointer
+      const point = this.toField(event);
+      this.moveAim(point.x, point.y);
+      return;
+    }
+    // Finger: dragged like a trackpad, otherwise the hand covers the target
+    if (!this.lastTouch) return;
+    const rect = this.canvasRef().nativeElement.getBoundingClientRect();
+    const scale = (FIELD.width / rect.width) * TOUCH_AIM_GAIN;
+    this.moveAim(
+      this.aim.x + (event.clientX - this.lastTouch.x) * scale,
+      this.aim.y + (event.clientY - this.lastTouch.y) * scale,
+    );
+    this.lastTouch = { x: event.clientX, y: event.clientY };
   }
 
   protected onPointerDown(event: PointerEvent): void {
+    if (event.pointerType === 'touch') {
+      this.lastTouch = { x: event.clientX, y: event.clientY };
+      return;
+    }
     if (event.button === 0) this.fire();
     if (event.button === 2) this.holdingButton = true;
   }
 
   protected onPointerUp(event: PointerEvent): void {
-    if (event.button === 2) this.holdingButton = false;
+    this.lastTouch = null;
+    if (event.pointerType !== 'touch' && event.button === 2) this.holdingButton = false;
   }
 
   protected onKey(event: KeyboardEvent, down: boolean): void {
@@ -142,6 +166,7 @@ export class RacePage {
   protected releaseAll(): void {
     this.keys.clear();
     this.holdingButton = false;
+    this.lastTouch = null;
   }
 
   private get holding(): boolean {
