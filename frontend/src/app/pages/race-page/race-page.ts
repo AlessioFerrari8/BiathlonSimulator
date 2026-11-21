@@ -94,7 +94,6 @@ export class RacePage {
     this.aim.x = FIELD.width / 2;
     this.aim.y = TARGET_Y + 120;
     this.hud.set(this.readHud());
-    this.hud.set(this.readHud());
   }
 
   protected next(): void {
@@ -106,6 +105,7 @@ export class RacePage {
       void this.router.navigate(['/result']);
       return;
     }
+    this.hud.set(this.readHud());
   }
 
   protected fire(): void {
