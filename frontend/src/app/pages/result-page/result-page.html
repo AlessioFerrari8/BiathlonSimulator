@@ -6,6 +6,42 @@
       <p class="mt-2 text-lg text-mist">{{ medal() }} · {{ race.result.misses }} missed</p>
     </div>
 
+    <div class="panel overflow-x-auto">
+      <table class="w-full text-left tabular-nums">
+        <thead class="label">
+          <tr>
+            <th class="pb-2">Stage</th>
+            <th class="pb-2">Targets</th>
+            <th class="pb-2 text-right">Ski</th>
+            <th class="pb-2 text-right">Range</th>
+            <th class="pb-2 text-right">Penalty</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (stage of race.result.stages; track $index) {
+            <tr class="border-t border-line">
+              <td class="py-2 pr-3">{{ $index + 1 }} · {{ stage.position === 'prone' ? 'Prone' : 'Standing' }}</td>
+              <td class="py-2 pr-3">
+                <span class="flex gap-1">
+                  @for (hit of stage.hits; track $index) {
+                    <span class="size-4 rounded-full border border-snow" [class.bg-snow]="hit"></span>
+                  }
+                </span>
+              </td>
+              <td class="py-2 text-right">{{ stage.legMs / 1000 }} s</td>
+              <td class="py-2 text-right">{{ formatTime(stage.rangeMs) }}</td>
+              <td class="py-2 text-right" [class.text-miss]="stage.penaltyMs > 0">+{{ stage.penaltyMs / 1000 }} s</td>
+            </tr>
+          }
+          <tr class="border-t border-line text-mist">
+            <td class="py-2" colspan="2">Final lap</td>
+            <td class="py-2 text-right">{{ finalLegSeconds }}</td>
+            <td colspan="2"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="flex flex-wrap gap-3">
       <a routerLink="/race" class="btn btn-primary">Race again</a>
       <a routerLink="/" class="btn">Home</a>

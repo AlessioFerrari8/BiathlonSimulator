@@ -2,6 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { RaceStore } from '../../core/race-store';
 import { formatTime, medalFor } from '../../game/format';
+import { FINAL_LEG_MS } from '../../game/config';
 
 const MEDAL_LABEL = { gold: 'Gold', silver: 'Silver', bronze: 'Bronze', none: 'No medal' } as const;
 
@@ -16,7 +17,9 @@ export class ResultPage {
     const race = this.race();
     return race ? MEDAL_LABEL[medalFor(race.result.totalMs)] : '';
   });
+  protected readonly finalLegSeconds = FINAL_LEG_MS / 1000;
   protected readonly formatTime = formatTime;
+
 
   constructor() {
     // Opening /result cold (reload, link) leaves no race to show
