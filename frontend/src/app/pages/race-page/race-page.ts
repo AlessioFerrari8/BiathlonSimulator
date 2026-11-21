@@ -4,6 +4,7 @@ import { ARRIVAL_HR, FIELD, LEG_MS, Pace, PENALTY_MS, STAGES, TARGET_Y } from '.
 import { Vec } from '../../game/shooter';
 import { drawScene } from '../../game/renderer';
 import { formatTime } from '../../game/format';
+import { Sound } from '../../core/sound';
 
 interface Hud {
   phase: Phase;
@@ -34,11 +35,13 @@ const MAX_FRAME_S = 0.05;
   templateUrl: './race-page.html',
 })
 export class RacePage {
+  protected readonly sound = inject(Sound);
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 
   // The seed changes every race: wind and tremor cannot be learned by heart
   private readonly race = new Race(Date.now());
   private readonly aim: Vec = { x: FIELD.width / 2, y: TARGET_Y + 120 };
+  private holdingButton = false;
   private frameId = 0;
   private lastFrame = 0;
   private lastHud = 0;
@@ -75,10 +78,43 @@ export class RacePage {
     this.hud.set(this.readHud());
   }
 
+  protected fire(): void {
+    const shot = this.race.fire(this.aim);
+    if (!shot) return;
+    this.sound.shot();
+    if (shot.target >= 0) this.sound.hit();
+    else this.sound.miss();
+    this.hud.set(this.readHud());
+  }
+
+  protected onPointerMove(event: PointerEvent): void {
+    const point = this.toField(event);
+    this.moveAim(point.x, point.y);
+  }
+
+  protected onPointerDown(event: PointerEvent): void {
+    if (event.button === 0) this.fire();
+    if (event.button === 2) this.holdingButton = true;
+  }
+
+  protected onPointerUp(event: PointerEvent): void {
+    if (event.button === 2) this.holdingButton = false;
+  }
+
+  protected releaseAll(): void {
+    this.holdingButton = false;
+  }
+
+  private get holding(): boolean {
+    return this.holdingButton;
+  }
+
   private frame(now: number): void {
     // After a tab switch the time jump would be huge: clamp it
     const dt = Math.min(MAX_FRAME_S, (now - this.lastFrame) / 1000);
     this.lastFrame = now;
+
+    this.race.update(dt, this.holding);
 
     this.race.update(dt, false);
 
@@ -103,6 +139,19 @@ export class RacePage {
     const ratio = window.devicePixelRatio || 1;
     canvas.width = Math.round(canvas.clientWidth * ratio);
     canvas.height = Math.round(canvas.clientHeight * ratio);
+  }
+
+  private toField(event: PointerEvent): Vec {
+    const rect = this.canvasRef().nativeElement.getBoundingClientRect();
+    return {
+      x: ((event.clientX - rect.left) / rect.width) * FIELD.width,
+      y: ((event.clientY - rect.top) / rect.height) * FIELD.height,
+    }
+  }
+
+  private moveAim(x: number, y: number): void {
+    this.aim.x = Math.min(FIELD.width, Math.max(0, x));
+    this.aim.y = Math.min(FIELD.height, Math.max(0, y));
   }
 
   private readHud(): Hud {
