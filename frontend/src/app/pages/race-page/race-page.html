@@ -40,7 +40,7 @@
 
 <div class="relative overflow-hidden rounded-xl border border-line">
   <canvas #canvas class="block aspect-[5/3] w-full cursor-none touch-none bg-night-soft" aria-label="Shooting range"
-    aria-label="Shooting range" (pointermove)="onPointerMove($event)" (pointerdown)="onPointerDown($event)"
+    (pointermove)="onPointerMove($event)" (pointerdown)="onPointerDown($event)"
     (pointerup)="onPointerUp($event)" (pointercancel)="releaseAll()" (contextmenu)="$event.preventDefault()"></canvas>
 
   @if(hud().strained) {
@@ -48,7 +48,7 @@
   }
 
   @if(hud().phase === 'pace') {
-    <section class="absolute inset-0 flex flex-col items-end justify-center gap-4 bg-night/90 p-4 text-center">
+    <section class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-night/90 p-4 text-center">
       <h2 class="text-2xl font-bold">How hard do you ski to stage {{ hud().stage }}?</h2>
       <p class="max-w-md text-mist">A faster lap saves seconds but your heart is still racing at the range. Each miss costs {{ penaltySeconds }} s.</p>
       <div class="grid w-full max-w-2xl gap-3 sm:grid-cols-3">
