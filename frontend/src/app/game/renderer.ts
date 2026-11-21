@@ -13,7 +13,7 @@ const COLORS = {
   hit: '#ffffff',
   miss: '#e5484d',
   flag: '#f5a524',
-  mask: '#rgba(6, 9, 14, 0.74)',
+  mask: 'rgba(6, 9, 14, 0.74)',
   sight: '#05070a',
   sightBusy: '#8a94a3',
 };
@@ -73,7 +73,7 @@ function drawFlag(ctx: CanvasRenderingContext2D, x: number, wind: number): void 
   ctx.stroke();
 
   // More wind = a tauter flag; with no widn it hangs along the pole, as it would in reality
-  const reach = wind * 16;
+  const reach = wind * 46;
   const droop = 30 * (1 - Math.abs(wind));
   ctx.fillStyle = COLORS.flag;
   ctx.beginPath();
