@@ -1,10 +1,13 @@
 import { afterNextRender, Component, DestroyRef, ElementRef, inject, signal, viewChild, WritableSignal } from '@angular/core';
-import { Phase, Race } from '../../game/race';
+import { Phase, Race, StageResult } from '../../game/race';
 import { ARRIVAL_HR, FIELD, LEG_MS, Pace, PENALTY_MS, STAGES, TARGET_Y } from '../../game/config';
 import { Vec } from '../../game/shooter';
 import { drawScene } from '../../game/renderer';
 import { formatTime } from '../../game/format';
 import { Sound } from '../../core/sound';
+import { BestTimes } from '../../core/best-times';
+import { RaceStore } from '../../core/race-store';
+import { Router } from '@angular/router';
 
 interface Hud {
   phase: Phase;
@@ -35,6 +38,9 @@ const MAX_FRAME_S = 0.05;
   templateUrl: './race-page.html',
 })
 export class RacePage {
+  private readonly router = inject(Router);
+  private readonly bestTimes = inject(BestTimes);
+  private readonly store = inject(RaceStore);
   protected readonly sound = inject(Sound);
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 
@@ -55,6 +61,9 @@ export class RacePage {
   ];
 
   protected readonly hud: WritableSignal<Hud> = signal(this.readHud());
+  protected readonly summary: WritableSignal<StageResult | null> = signal(null);
+  protected readonly formatTime = formatTime;
+
 
   constructor() {
     let observer: ResizeObserver | null = null;
@@ -76,6 +85,18 @@ export class RacePage {
     this.aim.x = FIELD.width / 2;
     this.aim.y = TARGET_Y + 120;
     this.hud.set(this.readHud());
+    this.hud.set(this.readHud());
+  }
+
+  protected next(): void {
+    this.race.next();
+    this.summary.set(null);
+    if (this.race.phase === 'finished') {
+      const result = this.race.result;
+      this.store.last.set({ result, rank: this.bestTimes.add(result) });
+      void this.router.navigate(['/result']);
+      return;
+    }
   }
 
   protected fire(): void {
@@ -114,9 +135,14 @@ export class RacePage {
     const dt = Math.min(MAX_FRAME_S, (now - this.lastFrame) / 1000);
     this.lastFrame = now;
 
+    const before = this.race.phase;
     this.race.update(dt, this.holding);
+    if (before === 'shooting' && this.race.phase === 'summary') {
+      this.summary.set(this.race.results.at(-1) ?? null);
+      this.releaseAll();
+      this.hud.set(this.readHud());
+    }
 
-    this.race.update(dt, false);
 
     // Updating the signals on every frame would re-render the HTML 60 times a second
     if (now - this.lastHud >= HUD_INTERVAL_MS && this.race.phase === 'shooting') {

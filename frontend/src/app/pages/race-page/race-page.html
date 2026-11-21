@@ -62,4 +62,25 @@
       </div>
     </section>
   }
+
+
+  @if (summary(); as stage) {
+    <section class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-night/90 p-4 text-center">
+      <h2 class="text-2xl font-bold">{{ stage.misses === 0 ? 'Clean stage!' : stage.misses + ' missed' }} </h2>
+      <div class="flex gap-2">
+        @for (hit of stage.hits; track $index) {
+          <span class="size-8 rounded-full border-2 border-snow" [class.bg-snow]="hit"></span>
+        }
+      </div>
+      <p class="text-mist">
+        Range time {{ formatTime(stage.rangeMs) }}
+        @if(stage.penaltyMs > 0) {
+          · <span class="text-miss">penalty +{{ stage.penaltyMs / 1000 }} s</span>
+        }
+      </p>
+      <button type="button" class="btn btn-primary" (click)="next()">
+        {{ hud().stage === stageCount ? 'Ski to the finish' : 'Next stage' }}
+      </button>
+    </section>
+  }
 </div>
