@@ -1,0 +1,25 @@
+import { Component, computed, inject } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { RaceStore } from '../../core/race-store';
+import { formatTime, medalFor } from '../../game/format';
+
+const MEDAL_LABEL = { gold: 'Gold', silver: 'Silver', bronze: 'Bronze', none: 'No medal' } as const;
+
+@Component({
+  imports: [RouterLink],
+  selector: 'app-result-page',
+  templateUrl: './result-page.html',
+})
+export class ResultPage {
+  protected readonly race = inject(RaceStore).last;
+  protected readonly medal = computed(() => {
+    const race = this.race();
+    return race ? MEDAL_LABEL[medalFor(race.result.totalMs)] : '';
+  });
+  protected readonly formatTime = formatTime;
+
+  constructor() {
+    // Opening /result cold (reload, link) leaves no race to show
+    if (!this.race()) void inject(Router).navigate(['/']);
+  }
+}
