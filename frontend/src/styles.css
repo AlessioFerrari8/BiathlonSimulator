@@ -17,6 +17,7 @@
   --font-sans: "Barlow", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Barlow Condensed", "Arial Narrow", ui-sans-serif, sans-serif;
   --animate-beat: beat 1s ease-out infinite;
+  --color-blue: #7ECBEB;
 
   @keyframes beat {
     0%, 100% { transform: scale(1); }
@@ -42,7 +43,7 @@
   }
 
   .btn-primary {
-    @apply border-amber bg-amber text-night hover:border-snow hover:bg-snow;
+    @apply border-blue-600 bg-blue-400 text-night hover:border-snow hover:bg-blue-300;
   }
 
 
