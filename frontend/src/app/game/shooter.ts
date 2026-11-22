@@ -35,6 +35,8 @@ export class Shooter {
     readonly position: Position,
     arrivalHr: number,
     private readonly phase = 0,
+    // Below 1 the athlete is steadier in this position, above 1 shakier
+    private readonly sway = 1,
   ) {
     this.hr = arrivalHr;
     this.breathPhase = phase;
@@ -76,7 +78,7 @@ export class Shooter {
    */
   get offset(): Vec {
     const amp = AMPLITUDE[this.position];
-    const scale = 0.35 + 0.65 * this.effort;
+    const scale = (0.35 + 0.65 * this.effort) * this.sway;
 
     // Each beat gives a small kick that fades before the next one
     const pulse = Math.exp(-5 * (this.heartPhase % 1));

@@ -1,3 +1,4 @@
+import { legFactor, NEUTRAL, Stats, swayFactor } from "./athletes";
 import { ARRIVAL_HR, FINAL_LEG_MS, LEG_MS, Pace, PENALTY_MS, Position, RELOAD_MS, SHOTS_PER_STAGE, STAGE_END_PAUSE_MS, STAGES, TARGET_RADIUS, TARGET_XS, TARGET_Y, WIND_DRIFT } from "./config";
 import { createRng } from "./rng";
 import { Shooter, Vec } from "./shooter";
@@ -23,6 +24,7 @@ export interface StageResult {
 export interface RaceResult {
   totalMs: number;
   misses: number;
+  finalLegMs: number;
   stages: StageResult[];
 }
 
@@ -43,12 +45,21 @@ export class Race {
   private gustPhase = 0;
   private endPauseMs = 0;
 
-  constructor(seed: number) {
+  constructor(seed: number, private readonly stats: Stats = NEUTRAL,) {
     this.rng = createRng(seed);
   }
 
   get position(): Position {
     return STAGES[this.stageIndex];
+  }
+
+  // Ski time of a lap for this athlete, rounded to a tenth like the clock
+  legMs(pace: Pace): number {
+    return Math.round((LEG_MS[pace] * legFactor(this.stats)) / 100) * 100;
+  }
+
+  get finalLegMs(): number {
+    return Math.round((FINAL_LEG_MS * legFactor(this.stats)) / 100) * 100;
   }
 
   get isLastStage(): boolean {
@@ -65,8 +76,8 @@ export class Race {
   // Race time so far
   get elapsedMs(): number {
     const done = this.results.reduce((sum, s) => sum + s.legMs + s.rangeMs + s.penaltyMs, 0);
-    if (this.phase === 'shooting') return done + LEG_MS[this.pace] + this.rangeMs;
-    if (this.phase === 'finished') return done + FINAL_LEG_MS;
+    if (this.phase === 'shooting') return done + this.legMs(this.pace) + this.rangeMs;
+    if (this.phase === 'finished') return done + this.finalLegMs;
     return done;
   }
 
@@ -74,6 +85,7 @@ export class Race {
     return {
       totalMs: this.elapsedMs,
       misses: this.results.reduce((sum, s) => sum + s.misses, 0),
+      finalLegMs: this.finalLegMs,
       stages: this.results,
     };
   }
@@ -82,6 +94,7 @@ export class Race {
   choosePace(pace: Pace): void {
     if (this.phase !== 'pace') return;
     this.pace = pace;
+    this.shooter = new Shooter(this.position, ARRIVAL_HR[pace], this.rng() * 100, swayFactor(this.stats, this.position));
     this.shooter = new Shooter(this.position, ARRIVAL_HR[pace], this.rng() * 100);
     this.hits = TARGET_XS.map(() => false);
     this.shots = [];
@@ -149,7 +162,7 @@ export class Race {
     this.results.push({
       position: this.position,
       pace: this.pace,
-      legMs: LEG_MS[this.pace],
+      legMs: this.legMs(this.pace),
       rangeMs: Math.round(this.rangeMs),
       hits: [...this.hits],
       misses,
