@@ -23,14 +23,14 @@ export const NEUTRAL: Stats = { ski: 5, prone: 5, standing: 5 };
 
 // Some are faster on skis, some steadier standing, some steadier prone: tune the numbers here
 export const ATHLETES: readonly Athlete[] = [
-  athlete('giacomel', 'Tommaso Giacomel', 'ITA', 'men', { ski: 7, prone: 6, standing: 8 }),
-  athlete('perrot', 'Eric Perrot', 'FRA', 'men', { ski: 6, prone: 8, standing: 7 }),
-  athlete('botn', 'Johan-Olav Botn', 'NOR', 'men', { ski: 7, prone: 7, standing: 7 }),
-  athlete('samuelsson', 'Sebastian Samuelsson', 'SWE', 'men', { ski: 9, prone: 6, standing: 6 }),
-  athlete('vittozzi', 'Lisa Vittozzi', 'ITA', 'women', { ski: 4, prone: 9, standing: 8 }),
-  athlete('jeanmonnot', 'Lou Jeanmonnot', 'FRA', 'women', { ski: 7, prone: 7, standing: 7 }),
-  athlete('kirkeeide', 'Maren Kirkeeide', 'NOR', 'women', { ski: 9, prone: 6, standing: 6 }),
-  athlete('oeberg', 'Hannah Öberg', 'SWE', 'women', { ski: 5, prone: 9, standing: 7 }),
+  athlete('giacomel', 'Tommaso Giacomel', 'ITA', 'men', 'Giacomel.jpg', { ski: 7, prone: 6, standing: 8 }),
+  athlete('perrot', 'Eric Perrot', 'FRA', 'men', 'Perrot.jpg', { ski: 6, prone: 8, standing: 7 }),
+  athlete('botn', 'Johan-Olav Botn', 'NOR', 'men', 'Botn.jpeg', { ski: 7, prone: 7, standing: 7 }),
+  athlete('samuelsson', 'Sebastian Samuelsson', 'SWE', 'men', 'Samuelsson.jpg', { ski: 9, prone: 6, standing: 6 }),
+  athlete('vittozzi', 'Lisa Vittozzi', 'ITA', 'women', 'Vittozzi.webp', { ski: 4, prone: 9, standing: 8 }),
+  athlete('jeanmonnot', 'Lou Jeanmonnot', 'FRA', 'women', 'Jeanmonnot.jpg', { ski: 7, prone: 7, standing: 7 }),
+  athlete('kirkeeide', 'Maren Kirkeeide', 'NOR', 'women', 'Kirkeidee.jpg', { ski: 9, prone: 6, standing: 6 }),
+  athlete('oeberg', 'Hannah Öberg', 'SWE', 'women', 'Oeberg.jpg', { ski: 5, prone: 9, standing: 7 }),
 ];
 
 export function athleteById(id: string): Athlete | undefined {
@@ -51,8 +51,8 @@ function clamp(rating: number): number {
   return Math.min(10, Math.max(1, rating));
 }
 
-function athlete(id: string, name: string, country: string, gender: Gender, stats: Stats): Athlete {
-  return { id, name, country, gender, photo: `athletes/${id}.jpg`, stats };
+function athlete(id: string, name: string, country: string, gender: Gender, photo: string, stats: Stats): Athlete {
+  return { id, name, country, gender, photo, stats };
 }
 
 
