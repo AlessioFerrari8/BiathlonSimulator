@@ -1,6 +1,6 @@
 import { afterNextRender, Component, DestroyRef, ElementRef, inject, signal, viewChild, WritableSignal } from '@angular/core';
 import { Phase, Race, StageResult } from '../../game/race';
-import { ARRIVAL_HR, FIELD, LEG_MS, Pace, PENALTY_MS, STAGES, TARGET_XS, TARGET_Y } from '../../game/config';
+import { ARRIVAL_HR, FIELD, Pace, TARGET_XS, TARGET_Y } from '../../game/config';
 import { Vec } from '../../game/shooter';
 import { drawScene } from '../../game/renderer';
 import { formatTime } from '../../game/format';
@@ -68,9 +68,8 @@ export class RacePage {
 
   protected readonly stageCount = this.format.stages.length;
   protected readonly penaltyText = this.format.penalty === 'loop'
-    ? `Each miss sends you round a ${this.format.penaltyMs / 1000} s loop`
-    : `Each miss adds ${this.format.penaltyMs / 1000} s`;
-  protected readonly penaltySeconds = PENALTY_MS / 1000;
+    ? `Each miss sends you round a ${this.format.penaltyMs / 1000} s loop.`
+    : `Each miss adds ${this.format.penaltyMs / 1000} s.`;
   // One notch per round on the scoreboard
   protected readonly rounds = TARGET_XS.map((_, i) => i);
   protected readonly paces: PaceOption[] = [

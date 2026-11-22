@@ -1,5 +1,5 @@
 import { legFactor, NEUTRAL, Stats, swayFactor } from "./athletes";
-import { ARRIVAL_HR, FINAL_LEG_MS, LEG_MS, Pace, PENALTY_MS, Position, RELOAD_MS, SHOTS_PER_STAGE, STAGE_END_PAUSE_MS, STAGES, TARGET_RADIUS, TARGET_XS, TARGET_Y, WIND_DRIFT } from "./config";
+import { ARRIVAL_HR, FINAL_LEG_MS, LEG_MS, Pace, Position, RELOAD_MS, SHOTS_PER_STAGE, STAGE_END_PAUSE_MS, TARGET_RADIUS, TARGET_XS, TARGET_Y, WIND_DRIFT } from "./config";
 import { DEFAULT_FORMAT, RaceFormat } from "./race-formats";
 import { createRng } from "./rng";
 import { Shooter, Vec } from "./shooter";

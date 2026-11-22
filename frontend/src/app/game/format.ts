@@ -1,4 +1,4 @@
-import { Medal, MEDAL_LIMIT_MS } from "./config";
+import { Medal } from "./config";
 import { RaceResult } from "./race";
 import { RaceFormat } from "./race-formats";
 
