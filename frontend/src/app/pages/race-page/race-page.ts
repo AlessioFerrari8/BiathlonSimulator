@@ -8,6 +8,7 @@ import { Sound } from '../../core/sound';
 import { BestTimes } from '../../core/best-times';
 import { RaceStore } from '../../core/race-store';
 import { Router, RouterLink } from '@angular/router';
+import { AthleteChoice } from '../../core/athlete-choice';
 
 interface Hud {
   phase: Phase;
@@ -53,7 +54,8 @@ export class RacePage {
   private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
 
   // The seed changes every race: wind and tremor cannot be learned by heart
-  private readonly race = new Race(Date.now());
+  protected readonly athlete = inject(AthleteChoice).selected();
+  private readonly race = new Race(Date.now(), this.athlete.stats);
   private readonly aim: Vec = { x: FIELD.width / 2, y: TARGET_Y + 120 };
   private readonly keys = new Set<string>();
   private holdingButton = false;
@@ -67,9 +69,9 @@ export class RacePage {
   // One notch per round on the scoreboard
   protected readonly rounds = TARGET_XS.map((_, i) => i);
   protected readonly paces: PaceOption[] = [
-    paceOption('easy', 'Easy', 'Arrive calm, lose time on the track.'),
-    paceOption('steady', 'Steady', 'The balanced choice.'),
-    paceOption('allOut', 'All out', 'Fastest skiing, shaking sights.'),
+    paceOption(this.race, 'easy', 'Easy', 'Arrive calm, lose time on the track.'),
+    paceOption(this.race, 'steady', 'Steady', 'The balanced choice.'),
+    paceOption(this.race, 'allOut', 'All out', 'Fastest skiing, shaking sights.'),
   ];
 
   protected readonly hud: WritableSignal<Hud> = signal(this.readHud());
@@ -104,7 +106,7 @@ export class RacePage {
     this.summary.set(null);
     if (this.race.phase === 'finished') {
       const result = this.race.result;
-      this.store.last.set({ result, rank: this.bestTimes.add(result) });
+      this.store.last.set({ result, athlete: this.athlete, rank: this.bestTimes.add(result, this.athlete.id) });
       void this.router.navigate(['/result']);
       return;
     }
@@ -247,7 +249,8 @@ export class RacePage {
   }
 }
 
-function paceOption(pace: Pace, name: string, hint: string): PaceOption {
-  return { pace, name, hint, seconds: LEG_MS[pace] / 1000, hr: ARRIVAL_HR[pace] };
+// The seconds shown already include the athlete's skiing
+function paceOption(race: Race, pace: Pace, name: string, hint: string): PaceOption {
+  return { pace, name, hint, seconds: race.legMs(pace) / 1000, hr: ARRIVAL_HR[pace] };
 }
 

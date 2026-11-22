@@ -23,7 +23,7 @@
         Wait and the clock runs, rush and you miss.
       </p>
       <div class="mt-9 flex flex-wrap items-center gap-3">
-        <a routerLink="/race" class="btn btn-primary px-10 py-4 text-2xl">Start race</a>
+        <a routerLink="/athlete" class="btn btn-primary px-10 py-4 text-2xl">Start race</a>
         <button type="button" class="btn" (click)="how.scrollIntoView({ behavior: 'smooth' })">Best times</button>
       </div>
     </div>
@@ -66,13 +66,16 @@
           <li class="flex items-baseline gap-4 py-4">
             <span class="w-5 font-display text-xl font-bold text-mist">{{ $index + 1 }}</span>
             <span class="stat flex-1 text-3xl">{{ formatTime(entry.totalMs) }}</span>
-            <span class="text-sm text-mist">{{ entry.misses }} missed · {{ entry.date | date: 'd MMM' }}</span>
+            <span class="text-right text-sm text-mist">
+              @if (entry.athlete) { <span class="block text-snow">{{ athleteName(entry.athlete) }}</span> }
+              {{ entry.misses }} missed · {{ entry.date | date: 'd MMM' }}
+            </span>
           </li>
         } @empty {
           <li class="py-4 text-mist">No race finished yet. Your five best times end up here.</li>
         }
       </ol>
-      <a routerLink="/race" class="btn btn-primary mt-8">Start race</a>
+      <a routerLink="/athlete" class="btn btn-primary mt-8">Start race</a>
     </div>
   </div>
 </section>

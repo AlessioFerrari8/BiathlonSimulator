@@ -3,7 +3,7 @@
     <div>
       <p class="label text-amber">{{ race.rank === 1 ? 'New personal best' : 'Finish' }}</p>
       <h1 class="mt-2 font-display text-7xl font-extrabold tabular-nums sm:text-9xl">{{ formatTime(race.result.totalMs) }}</h1>
-      <p class="mt-2 text-lg text-mist">{{ medal() }} · {{ race.result.misses }} missed</p>
+      <p class="mt-2 text-lg text-mist">{{ race.athlete.name }} · {{ medal() }} · {{ race.result.misses }} missed</p>
     </div>
 
     <div class="panel overflow-x-auto">
@@ -35,7 +35,7 @@
           }
           <tr class="border-t border-line text-mist">
             <td class="py-2" colspan="2">Final lap</td>
-            <td class="py-2 text-right">{{ finalLegSeconds }}</td>
+            <td class="py-2 text-right">{{ finalLegSeconds() }}</td>
             <td colspan="2"></td>
           </tr>
         </tbody>
@@ -44,6 +44,7 @@
 
     <div class="flex flex-wrap gap-3">
       <a routerLink="/race" class="btn btn-primary">Race again</a>
+      <a routerLink="/athlete" class="btn">Change ahtlete</a>
       <button type="button" class="btn" (click)="copy()">{{ copied() ? 'Copied' : 'Copy result' }}</button>
       <a routerLink="/" class="btn">Home</a>
     </div>

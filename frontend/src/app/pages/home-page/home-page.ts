@@ -4,6 +4,7 @@ import { MEDAL_LIMIT_MS, PENALTY_MS, STAGES, TARGET_XS } from '../../game/config
 import { formatTime } from '../../game/format';
 import { DatePipe } from '@angular/common';
 import { BestTimes } from '../../core/best-times';
+import { athleteById } from '../../game/athletes';
 
 @Component({
   imports: [RouterLink, DatePipe],
@@ -17,6 +18,7 @@ export class HomePage {
   protected readonly shotCount = STAGES.length * TARGET_XS.length;
   protected readonly penaltySeconds = PENALTY_MS / 1000;
   protected readonly formatTime = formatTime;
+  protected readonly athleteName = (id: string) => athleteById(id)?.name ?? '';
   protected readonly medals = [
     { name: 'Gold', time: formatTime(MEDAL_LIMIT_MS.gold), color: 'bg-amber' },
     { name: 'Silver', time: formatTime(MEDAL_LIMIT_MS.silver), color: 'bg-mist' },

@@ -19,7 +19,7 @@ export class ResultPage {
     return race ? MEDAL_LABEL[medalFor(race.result.totalMs)] : '';
   });
   protected readonly copied: WritableSignal<boolean> = signal(false);
-  protected readonly finalLegSeconds = FINAL_LEG_MS / 1000;
+  protected readonly finalLegSeconds = computed(() => (this.race()?.result.finalLegMs ?? FINAL_LEG_MS) / 1000);
   protected readonly formatTime = formatTime;
 
 

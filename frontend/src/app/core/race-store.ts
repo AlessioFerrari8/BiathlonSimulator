@@ -1,8 +1,10 @@
 import { Service, signal, WritableSignal } from '@angular/core';
 import { RaceResult } from '../game/race';
+import { Athlete } from '../game/athletes';
 
 export interface FinishedRace {
   result: RaceResult;
+  athlete: Athlete;
   // Rank in the local leaderboard, 0 if outside the top five
   rank: number;
 }

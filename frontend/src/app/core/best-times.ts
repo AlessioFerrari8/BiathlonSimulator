@@ -5,6 +5,7 @@ export interface BestTime {
   totalMs: number;
   misses: number;
   date: string;
+  athlete?: string;
 }
 
 const STORAGE_KEY = 'biathlon-simulator.best-times';
@@ -15,11 +16,12 @@ export class BestTimes {
   readonly list: WritableSignal<BestTime[]> = signal(this.load());
 
   // Saves the race and returns the rank it entered at (1 = record), or 0 if it missed the list
-  add(result: RaceResult): number {
+  add(result: RaceResult, athlete: string): number {
     const entry: BestTime = {
       totalMs: result.totalMs,
       misses: result.misses,
       date: new Date().toISOString(),
+      athlete,
     };
     const sorted = [...this.list(), entry].sort((a, b) => a.totalMs - b.totalMs).slice(0, MAX_ENTRIES);
     this.list.set(sorted);
@@ -52,6 +54,7 @@ function isBestTime(value: unknown): value is BestTime {
     entry['totalMs'] > 0 &&
     Number.isInteger(entry['misses']) &&
     typeof entry['date'] === 'string' &&
+    (entry['athlete'] === undefined || typeof entry['athlete'] === 'string') && 
     !Number.isNaN(Date.parse(entry['date']))
   );
 }
