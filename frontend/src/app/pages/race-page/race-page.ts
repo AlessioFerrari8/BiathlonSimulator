@@ -9,6 +9,7 @@ import { BestTimes } from '../../core/best-times';
 import { RaceStore } from '../../core/race-store';
 import { Router, RouterLink } from '@angular/router';
 import { AthleteChoice } from '../../core/athlete-choice';
+import { FormatChoice } from '../../core/format-choice';
 
 interface Hud {
   phase: Phase;
@@ -55,7 +56,8 @@ export class RacePage {
 
   // The seed changes every race: wind and tremor cannot be learned by heart
   protected readonly athlete = inject(AthleteChoice).selected();
-  private readonly race = new Race(Date.now(), this.athlete.stats);
+  protected readonly format = inject(FormatChoice).selected();
+  private readonly race = new Race(Date.now(), this.athlete.stats, this.format);
   private readonly aim: Vec = { x: FIELD.width / 2, y: TARGET_Y + 120 };
   private readonly keys = new Set<string>();
   private holdingButton = false;
@@ -64,7 +66,10 @@ export class RacePage {
   private lastFrame = 0;
   private lastHud = 0;
 
-  protected readonly stageCount = STAGES.length;
+  protected readonly stageCount = this.format.stages.length;
+  protected readonly penaltyText = this.format.penalty === 'loop'
+    ? `Each miss sends you round a ${this.format.penaltyMs / 1000} s loop`
+    : `Each miss adds ${this.format.penaltyMs / 1000} s`;
   protected readonly penaltySeconds = PENALTY_MS / 1000;
   // One notch per round on the scoreboard
   protected readonly rounds = TARGET_XS.map((_, i) => i);

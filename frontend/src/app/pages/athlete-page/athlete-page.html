@@ -1,0 +1,71 @@
+<header class="flex items-center justify-between">
+  <a routerLink="/" class="btn btn-ghost px-0">← Home</a>
+</header>
+
+<section class="flex flex-1 flex-col gap-8 py-6">
+  <div class="flex flex-wrap items-end justify-between gap-6">
+    <div>
+      <p class="label text-blue-400">Before the start</p>
+      <h1 class="mt-2 font-display text-6xl leading-none font-extrabold uppercase sm:text-7xl">Pick your athlete</h1>
+    </div>
+    <div class="flex rounded-md border border-line p-1" role="group" aria-label="Category">
+      @for (option of genders; track option.value) {
+        <button type="button" class="rounded px-5 py-2 font-display text-lg font-semibold tracking-wide uppercase transition-colors cursor-pointer"
+          [class.bg-blue-400]="gender() === option.value" [class.text-night]="gender() === option.value"
+          [class.text-mist]="gender() !== option.value" [attr.aria-pressed]="gender() === option.value"
+          (click)="setGender(option.value)">{{ option.label }}</button>
+      }
+    </div>
+  </div>
+
+  <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    @for (athlete of athletes(); track athlete.id) {
+      <li>
+        <button type="button" class="flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-xl border-2 bg-night-soft text-left transition-colors hover:border-ice"
+          [class.border-blue-400]="selected().id === athlete.id" [class.border-line]="selected().id !== athlete.id"
+          [attr.aria-pressed]="selected().id === athlete.id" (click)="select(athlete)">
+          <span class="relative block aspect-4/5 overflow-hidden bg-night">
+            @if (missing().has(athlete.id)) {
+              <span class="absolute inset-0 grid place-items-center font-display text-7xl font-extrabold text-line">{{ initials(athlete.name) }}</span>
+            } @else {
+              <img [src]="athlete.photo" [alt]="athlete.name" class="absolute inset-0 size-full object-cover object-top" (error)="photoFailed(athlete.id)">
+            }
+            <span class="absolute top-3 left-3 rounded bg-night/80 px-2 py-0.5 font-display text-sm font-bold tracking-wide">{{ athlete.country }}</span>
+          </span>
+          <span class="flex flex-col gap-3 p-4">
+            <span class="font-display text-2xl leading-tight font-bold uppercase">{{ athlete.name }}</span>
+            @for (rating of ratings; track rating.key) {
+              <span class="flex items-center gap-3" [attr.aria-label]="rating.label + ' ' + athlete.stats[rating.key] + ' out of 10'">
+                <span class="label w-20">{{ rating.label }}</span>
+                <span class="flex flex-1 gap-0.5">
+                  @for (notch of notches; track notch) {
+                    <span class="h-2 flex-1 rounded-sm" [class.bg-amber]="notch < athlete.stats[rating.key]"
+                      [class.bg-line]="notch >= athlete.stats[rating.key]"></span>
+                  }
+                </span>
+              </span>
+            }
+          </span>
+        </button>
+      </li>
+    }
+  </ul>
+
+  <div>
+    <p class="label text-blue-400">Race</p>
+    <ul class="mt-3 grid gap-3 sm:grid-cols-3">
+      @for (option of formats; track option.id) {
+        <li>
+          <button type="button" class="flex h-full w-full cursor-pointer flex-col gap-1 rounded-xl border-2 bg-night-soft p-4 text-left transition-colors hover:border-ice"
+            [class.border-blue-400]="format().id === option.id" [class.border-line]="format().id !== option.id"
+            [attr.aria-pressed]="format().id === option.id" (click)="selectFormat(option)">
+            <span class="font-display text-2xl font-bold uppercase">{{ option.name }}</span>
+            <span class="text-sm text-mist">{{ option.blurb }}</span>
+            <span class="label mt-2">{{ option.stages.length }} stages · miss {{ penaltyLabel(option) }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+    <a routerLink="/race" class="btn btn-primary px-10 py-4 text-2xl">{{ format().name }} with {{ surname(selected().name) }}</a>
+  </div>
+</section>

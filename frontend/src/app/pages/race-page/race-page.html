@@ -1,8 +1,8 @@
 <div class="range-frame mx-auto flex flex-1 flex-col justify-center py-3">
   <!-- Scoreboard: one bar glued to the range, like the graphics of a TV race -->
   <header class="grid grid-cols-3 overflow-hidden rounded-t-xl border border-b-0 border-line bg-night-soft sm:flex">
-    <div class="flex flex-col justify-center bg-amber px-4 py-2.5 text-night">
-      <p class="text-xs font-semibold tracking-widest uppercase">Stage {{ hud().stage }}/{{ stageCount }}</p>
+    <div class="flex flex-col justify-center bg-blue-400 px-4 py-2.5 text-night">
+      <p class="text-xs font-semibold tracking-widest uppercase">{{ format.name }} · Stage {{ hud().stage }}/{{ stageCount }}</p>
       <p class="stat">{{ hud().position }}</p>
     </div>
     <div class="hud-cell">
@@ -25,7 +25,7 @@
       <!-- The bar starts at the centre and grows towards the side the wind pushes the shot -->
       <div class="relative h-2.5 w-24 rounded-full bg-night" role="img"
         [attr.aria-label]="'Wind ' + (hud().wind < 0 ? 'left' : 'right')">
-        <div class="absolute top-0 h-2.5 rounded-full bg-amber"
+        <div class="absolute top-0 h-2.5 rounded-full bg-blue-400"
           [style.width.%]="(hud().wind < 0 ? -hud().wind : hud().wind) * 50"
           [style.left.%]="hud().wind < 0 ? 50 + hud().wind * 50 : 50"></div>
         <div class="absolute -top-0.5 left-1/2 h-3.5 w-px bg-snow"></div>
@@ -45,7 +45,7 @@
       <p class="label">Rounds</p>
       <div class="flex h-4 items-end gap-1" role="img" [attr.aria-label]="hud().shotsLeft + ' rounds left'">
         @for (round of rounds; track round) {
-          <span class="h-4 w-1.5 rounded-t-full" [class]="round < hud().shotsLeft ? 'bg-amber' : 'bg-line'"></span>
+          <span class="h-4 w-1.5 rounded-t-full" [class]="round < hud().shotsLeft ? 'bg-orange-400' : 'bg-line'"></span>
         }
       </div>
     </div>
@@ -72,9 +72,9 @@
 
     @if (hud().phase === 'pace') {
       <section class="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-night/90 p-4 text-center">
-        <p class="label text-amber">Stage {{ hud().stage }} · {{ hud().position }}</p>
+        <p class="label text-blue-400">Stage {{ hud().stage }} · {{ hud().position }}</p>
         <h2 class="font-display text-4xl font-bold uppercase sm:text-5xl">How hard do you ski?</h2>
-        <p class="max-w-md text-mist">A faster lap saves seconds but your heart is still racing at the range. Each miss costs {{ penaltySeconds }} s.</p>
+        <p class="max-w-md text-mist">A faster lap saves seconds but your heart is still racing at the range. {{ penaltyText }}</p>
         <div class="grid w-full max-w-3xl gap-3 sm:grid-cols-3">
           @for (option of paces; track option.pace; let level = $index) {
             <button type="button" class="group flex cursor-pointer flex-col items-start gap-2 rounded-lg border border-line bg-night-soft p-4 text-left transition-colors hover:border-amber"
@@ -82,10 +82,10 @@
               <!-- One bar per level of effort -->
               <span class="flex gap-1">
                 @for (bar of [0, 1, 2]; track bar) {
-                  <span class="h-1.5 w-6 rounded-full" [class]="bar <= level ? 'bg-amber' : 'bg-line'"></span>
+                  <span class="h-1.5 w-6 rounded-full" [class]="bar <= level ? 'bg-blue-400' : 'bg-line'"></span>
                 }
               </span>
-              <span class="font-display text-2xl font-bold uppercase group-hover:text-amber">{{ option.name }}</span>
+              <span class="font-display text-2xl font-bold uppercase group-hover:text-blue-400">{{ option.name }}</span>
               <span class="font-display text-lg font-semibold tabular-nums">{{ option.seconds }} s · {{ option.hr }} bpm</span>
               <span class="text-sm text-mist">{{ option.hint }}</span>
             </button>
