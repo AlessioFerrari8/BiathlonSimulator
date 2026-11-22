@@ -1,5 +1,6 @@
 import { Medal, MEDAL_LIMIT_MS } from "./config";
 import { RaceResult } from "./race";
+import { RaceFormat } from "./race-formats";
 
 // 533400 -> "8:53.4"
 export function formatTime(ms: number): string {
@@ -9,10 +10,11 @@ export function formatTime(ms: number): string {
   return `${minutes}:${String(seconds).padStart(2, '0')}.${tenths % 10}`;
 }
 
-export function medalFor(ms: number): Medal {
-  if (ms <= MEDAL_LIMIT_MS.gold) return 'gold';
-  if (ms <= MEDAL_LIMIT_MS.silver) return 'silver';
-  if (ms <= MEDAL_LIMIT_MS.bronze) return 'bronze';
+// Each format has its own limits: a sprint is about three fifths of a mass start
+export function medalFor(ms: number, format: RaceFormat): Medal {
+  if (ms <= format.medals.gold) return 'gold';
+  if (ms <= format.medals.silver) return 'silver';
+  if (ms <= format.medals.bronze) return 'bronze';
   return 'none';
 }
 
@@ -24,7 +26,6 @@ export function shareText(result: RaceResult): string {
     const targets = stage.hits.map((hit) => (hit ? '⚪' : '⚫')).join('');
     return `${stage.position === 'prone' ? 'P' : 'S'} ${targets}`;
   });
-  const medal = MEDAL_ICON[medalFor(result.totalMs)];
-  return [`Poligono arcade ${formatTime(result.totalMs)} ${medal}`.trim(), ...rows].join('\n');
-
+  const medal = MEDAL_ICON[medalFor(result.totalMs, result.format)];
+  return [`Biathlon Simulator · ${result.format.name} ${formatTime(result.totalMs)} ${medal}`.trim(), ...rows].join('\n');
 }

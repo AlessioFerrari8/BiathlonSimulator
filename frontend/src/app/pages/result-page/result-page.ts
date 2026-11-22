@@ -16,7 +16,7 @@ export class ResultPage {
   protected readonly race = inject(RaceStore).last;
   protected readonly medal = computed(() => {
     const race = this.race();
-    return race ? MEDAL_LABEL[medalFor(race.result.totalMs)] : '';
+    return race ? MEDAL_LABEL[medalFor(race.result.totalMs, race.result.format)] : '';
   });
   protected readonly copied: WritableSignal<boolean> = signal(false);
   protected readonly finalLegSeconds = computed(() => (this.race()?.result.finalLegMs ?? FINAL_LEG_MS) / 1000);

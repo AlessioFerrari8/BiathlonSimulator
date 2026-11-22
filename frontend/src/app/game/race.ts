@@ -1,5 +1,6 @@
 import { legFactor, NEUTRAL, Stats, swayFactor } from "./athletes";
 import { ARRIVAL_HR, FINAL_LEG_MS, LEG_MS, Pace, PENALTY_MS, Position, RELOAD_MS, SHOTS_PER_STAGE, STAGE_END_PAUSE_MS, STAGES, TARGET_RADIUS, TARGET_XS, TARGET_Y, WIND_DRIFT } from "./config";
+import { DEFAULT_FORMAT, RaceFormat } from "./race-formats";
 import { createRng } from "./rng";
 import { Shooter, Vec } from "./shooter";
 
@@ -22,6 +23,7 @@ export interface StageResult {
 }
 
 export interface RaceResult {
+  format: RaceFormat;
   totalMs: number;
   misses: number;
   finalLegMs: number;
@@ -45,12 +47,16 @@ export class Race {
   private gustPhase = 0;
   private endPauseMs = 0;
 
-  constructor(seed: number, private readonly stats: Stats = NEUTRAL,) {
+  constructor(
+    seed: number,
+    private readonly stats: Stats = NEUTRAL,
+    readonly format: RaceFormat = DEFAULT_FORMAT,
+  ) {
     this.rng = createRng(seed);
   }
 
   get position(): Position {
-    return STAGES[this.stageIndex];
+    return this.format.stages[this.stageIndex];
   }
 
   // Ski time of a lap for this athlete, rounded to a tenth like the clock
@@ -63,13 +69,13 @@ export class Race {
   }
 
   get isLastStage(): boolean {
-    return this.stageIndex === STAGES.length - 1;
+    return this.stageIndex === this.format.stages.length - 1;
   }
 
   // wind, from -1 (blowing from the left) to 1, blowing right
   get wind(): number {
-    // Gusts start at the third stage: the wind read on arribal is no longer enough
-    const gust = this.stageIndex >= 2 ? 0.2 * Math.sin((this.rangeMs / 1000) * 0.6 + this.gustPhase) : 0;
+    // Gusts start halfway (stage 3, stage 2 in a sprint): the wind read on arrival is no longer enough
+    const gust = this.stageIndex >= this.format.stages.length / 2 ? 0.2 * Math.sin((this.rangeMs / 1000) * 0.6 + this.gustPhase) : 0;
     return Math.min(1, Math.max(-1, this.windBase + gust));
   }
 
@@ -83,6 +89,7 @@ export class Race {
 
   get result(): RaceResult {
     return {
+      format: this.format,
       totalMs: this.elapsedMs,
       misses: this.results.reduce((sum, s) => sum + s.misses, 0),
       finalLegMs: this.finalLegMs,
@@ -95,7 +102,6 @@ export class Race {
     if (this.phase !== 'pace') return;
     this.pace = pace;
     this.shooter = new Shooter(this.position, ARRIVAL_HR[pace], this.rng() * 100, swayFactor(this.stats, this.position));
-    this.shooter = new Shooter(this.position, ARRIVAL_HR[pace], this.rng() * 100);
     this.hits = TARGET_XS.map(() => false);
     this.shots = [];
     this.shotsLeft = SHOTS_PER_STAGE;
@@ -166,7 +172,7 @@ export class Race {
       rangeMs: Math.round(this.rangeMs),
       hits: [...this.hits],
       misses,
-      penaltyMs: misses * PENALTY_MS,
+      penaltyMs: misses * this.format.penaltyMs,
     });
     this.phase = 'summary';
   }
