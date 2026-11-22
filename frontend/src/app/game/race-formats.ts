@@ -8,7 +8,7 @@ export interface RaceFormat {
   // One line under the name in the picker
   blurb: string;
   stages: readonly Position[];
-  // A miss must weight more than the gap between two skiing paces, otherwise it always pays to arrive flat out and shoot at random
+  // A miss must weigh more than the gap between two skiing paces, otherwise it always pays to arrive flat out and shoot at random
   penaltyMs: number;
   // Sprint and mass start send you round a penalty loop, the individual just adds a minute
   penalty: 'loop' | 'minute';
@@ -49,7 +49,7 @@ export const FORMATS: Record<FormatId, RaceFormat> = {
 
 export const FORMAT_LIST: readonly RaceFormat[] = [FORMATS.sprint, FORMATS.individual, FORMATS.massStart];
 
-// The races before formats had four stages and 25 s loops: the closests one in the mass start
+// The races before formats had four stages and 25 s loops: the closest one is the mass start
 export const DEFAULT_FORMAT = FORMATS.massStart;
 
 export function raceFormatById(id: string): RaceFormat | undefined {

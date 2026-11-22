@@ -14,7 +14,7 @@ function aimAt(race: Race, point: Vec): Vec {
   return { x: point.x - offset.x - race.wind * WIND_DRIFT, y: point.y - offset.y }
 }
 
-// Five shots, the first `hits` on target, the otehrs in the sky, then the stage closes
+// Five shots, the first `hits` on target, the others in the sky, then the stage closes
 function shootStage(race: Race, hits: number): void {
   for (let i = 0; i < TARGET_XS.length; i++) {
     const point = i < hits ? { x: TARGET_XS[i], y: TARGET_Y } : { x: 50, y: 50 };
